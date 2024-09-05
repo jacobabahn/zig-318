@@ -8,24 +8,26 @@ pub fn main() !void {
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
-    const matrix = try lm.generatePuzzle(allocator, 10);
+    var matrix = try lm.emptyPuzzle(allocator, 15);
     defer freePuzzle(allocator, matrix);
 
-    // try lettermatrix.readMatrix(&grid);
     var wordList = std.ArrayList([]const u8).init(allocator);
     defer wordList.deinit();
-    try wordList.append("Mary");
-    try wordList.append("Its");
-    try wordList.append("And");
+    try wordList.append("mary");
+    try wordList.append("its");
+    try wordList.append("and");
     try wordList.append("the");
+    try wordList.append("word");
+    try wordList.append("search");
+    try wordList.append("solver");
 
-    const grid = solve(matrix, wordList);
-    lm.printMatrix(grid);
+    std.debug.print("Words: {s}\n\n", .{wordList.items});
 
-    std.debug.print("\n", .{});
-
-    lm.placeWords(grid, wordList);
-    lm.printMatrix(grid);
+    lm.placeWords(matrix, wordList);
+    matrix = try lm.generatePuzzle(matrix);
+    std.debug.print("\nPuzzle:\n", .{});
+    lm.printMatrix(matrix);
+    matrix = solve(matrix, wordList);
 }
 
 pub fn freePuzzle(allocator: std.mem.Allocator, matrix: lm.LetterMatrix) void {

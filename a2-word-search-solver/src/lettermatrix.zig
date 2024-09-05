@@ -39,56 +39,70 @@ pub fn readMatrix(grid: *LetterMatrix) !void {
     }
 }
 
-pub fn canPlaceWord(r: usize, c: usize, wordLen: usize, size: usize, direction: []usize) bool {
-    const row = r + @as(usize, direction[0]) * wordLen;
-    const col = c + @as(usize, direction[1]) * wordLen;
+pub fn canPlaceWord(r: usize, c: usize, wordLen: isize, size: usize, direction: []const isize) bool {
+    const nr: isize = @intCast(r);
+    const nc: isize = @intCast(c);
+    const row = nr + @as(isize, direction[0]) * @as(isize, wordLen);
+    const col = nc + @as(isize, direction[1]) * @as(isize, wordLen);
     return row >= 0 and row < size and col >= 0 and col < size;
 }
 
 pub fn placeWords(grid: LetterMatrix, words: std.ArrayList([]const u8)) void {
     const size = grid.len;
-    const directions = [_][2]usize{
-        .{ @as(usize, 1), @as(usize, 0) },
-        .{ @as(usize, 0), @as(usize, 1) },
-        // .{ @as(usize, -1), @as(usize, 0) },
-        // .{ @as(usize, 0), @as(usize, -1) },
-        // .{ @as(usize, 1), @as(usize, 1) },
-        // .{ @as(usize, -1), @as(usize, 1) },
-        // .{ @as(usize, 1), @as(usize, -1) },
-        // .{ @as(usize, -1), @as(usize, -1) },
+    const directions = [_][2]isize{
+        .{ 1, 0 },
+        .{ 0, 1 },
+        .{ -1, 0 },
+        .{ 0, -1 },
+        .{ 1, 1 },
+        .{ -1, 1 },
+        .{ 1, -1 },
+        .{ -1, -1 },
     };
 
-    for (words.items) |word| {
-        for (grid, 0..) |row, i| {
-            for (row, 0..) |_, j| {
-                var direction = directions[std.crypto.random.intRangeAtMost(usize, 0, directions.len - 1)];
-                while (true) {
-                    if (canPlaceWord(i, j, word.len, size, &direction)) {
-                        placeWord(grid, word, .{ @as(usize, i), @as(usize, j) }, direction);
-                        break;
-                    }
-                    direction = directions[std.crypto.random.intRangeAtMost(usize, 0, directions.len - 1)];
-                }
+    outer: for (words.items) |word| {
+        var direction = directions[std.crypto.random.intRangeAtMost(usize, 0, directions.len - 1)];
+        inner: while (true) {
+            const row = std.crypto.random.intRangeAtMost(usize, 0, size - 1);
+            const col = std.crypto.random.intRangeAtMost(usize, 0, size - 1);
+            const wordLen: isize = @intCast(word.len);
+            if (canPlaceWord(row, col, wordLen, size, &direction)) {
+                placeWord(grid, word, row, col, &direction) catch |err| {
+                    std.debug.print("{any}: {d}, col: {d}\n", .{ err, row, col });
+                    continue :inner;
+                };
+                std.debug.print("placed word at row: {d}, col: {d}\n", .{ row, col });
+                continue :outer;
             }
+            direction = directions[std.crypto.random.intRangeAtMost(usize, 0, directions.len - 1)];
         }
     }
 }
 
-pub fn placeWord(grid: LetterMatrix, word: []const u8, start: []usize, direction: []usize) void {
-    const row = start[0];
-    const col = start[1];
-
+pub fn placeWord(grid: LetterMatrix, word: []const u8, row: usize, col: usize, direction: []isize) !void {
+    const nrow: isize = @intCast(row);
+    const ncol: isize = @intCast(col);
     for (word, 0..) |letter, i| {
-        grid[row + direction[0] * i][col + direction[1] * i] = letter;
+        const idx: usize = i;
+        const newRow: usize = @intCast(nrow + direction[0] * @as(isize, @intCast(idx)));
+        const newCol: usize = @intCast(ncol + direction[1] * @as(isize, @intCast(idx)));
+        if (grid[newRow][newCol] != '.') {
+            return error.WordCollision;
+        }
+        grid[newRow][newCol] = letter;
     }
 }
 
-pub fn generatePuzzle(allocator: std.mem.Allocator, size: usize) !LetterMatrix {
-    var matrix = try allocator.alloc([]u8, size);
+pub fn generatePuzzle(matrix: LetterMatrix) !LetterMatrix {
+    // var matrix = try allocator.alloc([]u8, size);
 
-    for (0..size) |i| {
-        matrix[i] = try allocator.alloc(u8, size);
-        for (0..size) |j| {
+    for (0..matrix.len) |i| {
+        // matrix[i] = try allocator.alloc(u8, size);
+        for (0..matrix[i].len) |j| {
+            if (matrix[i][j] != '.') {
+                continue;
+            }
+
             const letter = std.crypto.random.intRangeAtMost(u8, 65, 90);
             matrix[i][j] = letter;
         }
