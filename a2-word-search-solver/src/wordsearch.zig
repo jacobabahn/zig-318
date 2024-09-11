@@ -7,7 +7,6 @@ pub fn solve(matrix: lm.LetterMatrix, wordlist: std.ArrayList([]const u8)) lm.Le
         for (matrix, 0..) |row, i| {
             for (row, 0..) |_, j| {
                 if (matrix[i][j] == word[0]) {
-                    // std.debug.print("Letter: {c}, word: {s}, r {d}, c: {d}\n", .{ matrix[i][j], word, i, j });
                     const found = checkDirections(matrix, word, i, j);
                     if (found) {
                         count += 1;
@@ -50,7 +49,6 @@ fn checkDirections(matrix: lm.LetterMatrix, word: []const u8, row: usize, col: u
             continue;
         }
         if (matrix[nr][nc] == word[1]) {
-            // std.debug.print("Found 2nd letter of word: {s} at r: {d}, c: {d}\n", .{ word, nr, nc });
             found = checkWord(matrix, word, row, col, &direction);
             if (found) {
                 std.debug.print("Found word: '{s}' at r: {d}, c: {d}\n", .{ word, nr, nc });
@@ -69,15 +67,10 @@ fn canPlaceWord(r: usize, c: usize, wordLen: isize, size: usize, direction: []co
     const nc: isize = @intCast(c);
     const row = nr + @as(isize, direction[0]) * @as(isize, wordLen);
     const col = nc + @as(isize, direction[1]) * @as(isize, wordLen);
-    // std.debug.print("canPlaceWord: row: {d}, col: {d}\n, direction: {any}\n", .{ row, col, direction });
-    // std.debug.print("Return val of CanPlaceWord: {any}\n", .{row >= 0 and row < size and col >= 0 and col < size});
     return row >= 0 and row < size and col >= 0 and col < size;
 }
 
 fn checkWord(matrix: lm.LetterMatrix, word: []const u8, row: usize, col: usize, direction: *const [2]isize) bool {
-    // const wordLen: isize = @intCast(word.len);
-    // std.debug.print("In checkword: '{s}' at row: {d}, col: {d} with direction: {any}\n", .{ word, row, col, direction });
-
     const nrow: isize = @intCast(row);
     const ncol: isize = @intCast(col);
     for (word, 0..) |letter, i| {
@@ -91,20 +84,5 @@ fn checkWord(matrix: lm.LetterMatrix, word: []const u8, row: usize, col: usize, 
             return false;
         }
     }
-
-    // for (direction, 0..) |d, i| {
-    //     const newRow: usize = @intCast(nrow + d[0] * @as(isize, wordLen));
-    //     const newCol: usize = @intCast(ncol + d[1] * @as(isize, wordLen));
-    //     if (matrix[newRow][newCol] != word[i]) {
-    //         return false;
-    //     }
-    // }
-    // for (0..word.len) |i| {
-    //     const newRow: usize = @intCast(nrow + @as(isize, @intCast(i)) * direction[0]);
-    //     const newCol: usize = @intCast(ncol + @as(isize, @intCast(i)) * direction[1]);
-    //     if (newRow >= matrix.len or newCol >= matrix[0].len or matrix[newRow][newCol] != word[i]) {
-    //         return false;
-    //     }
-    // }
     return true;
 }
