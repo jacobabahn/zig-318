@@ -39,13 +39,17 @@ pub const Multilist = struct {
         };
 
         var first_sentinel = try allocator.create(Node);
-        first_sentinel.* = Node.init(0, "SentinelFirst", 0); // Sentinel values
+        first_sentinel.* = Node.init(0, "", 0); // Sentinel values
 
         var last_sentinel = try allocator.create(Node);
-        last_sentinel.* = Node.init(0, "SentinelLast", 0); // Sentinel values
+        last_sentinel.* = Node.init(0, "", 0); // Sentinel values
 
         first_sentinel.next_id = last_sentinel;
         last_sentinel.prev_id = first_sentinel;
+        first_sentinel.next_age = last_sentinel;
+        last_sentinel.prev_age = first_sentinel;
+        first_sentinel.next_name = last_sentinel;
+        last_sentinel.prev_name = first_sentinel;
 
         list.first = first_sentinel;
         list.last = last_sentinel;
