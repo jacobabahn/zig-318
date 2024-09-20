@@ -167,8 +167,46 @@ pub fn printByAge(list: Multilist) void {
             current = node.next_age;
             continue;
         }
-        std.debug.print("Node: {any}\n", .{node.id});
+        std.debug.print("Node Age: {any}\n", .{node.age});
         current = node.next_age;
+    }
+}
+
+pub fn printByAgeReverse(list: Multilist) void {
+    std.debug.print("Printing by Age (Reversed)\n", .{});
+    var current = list.last;
+    while (current) |node| {
+        if (node == list.first or node == list.last) {
+            current = node.prev_age;
+            continue;
+        }
+        std.debug.print("Node Age: {any}\n", .{node.age});
+    }
+}
+
+pub fn printByName(list: Multilist) void {
+    std.debug.print("Printing by Name:\n", .{});
+    var current = list.first;
+    while (current) |node| {
+        if (node == list.first or node == list.last) {
+            current = node.next_name;
+            continue;
+        }
+        std.debug.print("Node Name: {s}\n", .{node.name});
+        current = node.next_name;
+    }
+}
+
+pub fn printByNameReverse(list: Multilist) void {
+    std.debug.print("Printing by Name (Reversed):\n", .{});
+    var current = list.last;
+    while (current) |node| {
+        if (node == list.first or node == list.last) {
+            current = node.prev_name;
+            continue;
+        }
+        std.debug.print("Node Name: {s}\n", .{node.name});
+        current = node.prev_name;
     }
 }
 
