@@ -115,10 +115,6 @@ pub fn emptyPuzzle(allocator: std.mem.Allocator, size: usize) !LetterMatrix {
     var matrix = try allocator.alloc([]u8, size);
 
     for (0..size) |i| {
-        // matrix[i] = allocator.alloc(u8, size) |err| {
-        //     freePuzzleRows(allocator, matrix, i); // Free rows up to this point if allocation fails
-        //     return err;
-        // };
         matrix[i] = try allocator.alloc(u8, size);
         @memset(matrix[i], '.'); // Initialize each row with '.'
     }
