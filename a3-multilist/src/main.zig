@@ -117,7 +117,6 @@ pub const Multilist = struct {
             if (curr_node.id != id) {
                 current = curr_node.next_id;
             } else if (curr_node.id == id) {
-                // const temp = curr_node.prev_id;
                 curr_node.next_id.?.prev_id = curr_node.prev_id;
                 curr_node.prev_id.?.next_id = curr_node.next_id;
 
@@ -134,6 +133,7 @@ pub const Multilist = struct {
 };
 
 pub fn printById(list: Multilist) void {
+    std.debug.print("i\n", .{});
     std.debug.print("Printing by Id:\n", .{});
     var current = list.first;
     while (current) |node| {
@@ -141,12 +141,13 @@ pub fn printById(list: Multilist) void {
             current = node.next_id;
             continue;
         }
-        std.debug.print("Node ID: {d}\n", .{node.id});
+        std.debug.print("({s},{d},{d})\n", .{ node.name, node.id, node.age });
         current = node.next_id;
     }
 }
 
 pub fn printByIdReverse(list: Multilist) void {
+    std.debug.print("I\n", .{});
     std.debug.print("Printing by Id (Reversed):\n", .{});
     var current = list.last;
     while (current) |node| {
@@ -154,12 +155,13 @@ pub fn printByIdReverse(list: Multilist) void {
             current = node.prev_id;
             continue;
         }
-        std.debug.print("Node ID: {d}\n", .{node.id});
+        std.debug.print("({s},{d},{d})\n", .{ node.name, node.id, node.age });
         current = node.prev_id;
     }
 }
 
 pub fn printByAge(list: Multilist) void {
+    std.debug.print("a\n", .{});
     std.debug.print("Printing by age\n", .{});
     var current = list.first;
     while (current) |node| {
@@ -167,12 +169,13 @@ pub fn printByAge(list: Multilist) void {
             current = node.next_age;
             continue;
         }
-        std.debug.print("Node Age: {any}\n", .{node.age});
+        std.debug.print("({s},{d},{d})\n", .{ node.name, node.id, node.age });
         current = node.next_age;
     }
 }
 
 pub fn printByAgeReverse(list: Multilist) void {
+    std.debug.print("A\n", .{});
     std.debug.print("Printing by Age (Reversed)\n", .{});
     var current = list.last;
     while (current) |node| {
@@ -180,12 +183,13 @@ pub fn printByAgeReverse(list: Multilist) void {
             current = node.prev_age;
             continue;
         }
-        std.debug.print("Node Age: {any}\n", .{node.age});
+        std.debug.print("({s},{d},{d})\n", .{ node.name, node.id, node.age });
         current = node.prev_age;
     }
 }
 
 pub fn printByName(list: Multilist) void {
+    std.debug.print("n\n", .{});
     std.debug.print("Printing by Name:\n", .{});
     var current = list.first;
     while (current) |node| {
@@ -193,12 +197,13 @@ pub fn printByName(list: Multilist) void {
             current = node.next_name;
             continue;
         }
-        std.debug.print("Node Name: {s}\n", .{node.name});
+        std.debug.print("({s},{d},{d})\n", .{ node.name, node.id, node.age });
         current = node.next_name;
     }
 }
 
 pub fn printByNameReverse(list: Multilist) void {
+    std.debug.print("N\n", .{});
     std.debug.print("Printing by Name (Reversed):\n", .{});
     var current = list.last;
     while (current) |node| {
@@ -206,7 +211,7 @@ pub fn printByNameReverse(list: Multilist) void {
             current = node.prev_name;
             continue;
         }
-        std.debug.print("Node Name: {s}\n", .{node.name});
+        std.debug.print("({s},{d},{d})\n", .{ node.name, node.id, node.age });
         current = node.prev_name;
     }
 }
@@ -217,27 +222,33 @@ pub fn main() !void {
     const allocator = gpa.allocator();
 
     var ml = try Multilist.init(allocator);
-    const node1 = try allocator.create(Node);
-    const node2 = try allocator.create(Node);
-    const node3 = try allocator.create(Node);
-    const node4 = try allocator.create(Node);
-    node1.* = Node.init(1, "Node1", 10);
-    node2.* = Node.init(2, "Node7", 20);
-    node3.* = Node.init(4, "Node5", 30);
-    node4.* = Node.init(3, "Node4", 15);
-    try ml.insert(node1);
-    try ml.insert(node2);
-    try ml.insert(node3);
-    try ml.insert(node4);
+
+    const fred = try allocator.create(Node);
+    const wilma = try allocator.create(Node);
+    const dino = try allocator.create(Node);
+    const barney = try allocator.create(Node);
+    const betty = try allocator.create(Node);
+    const pebbles = try allocator.create(Node);
+
+    fred.* = Node.init(145, "Fred", 34);
+    wilma.* = Node.init(200, "Wilma", 33);
+    dino.* = Node.init(420, "Dino", 3);
+    barney.* = Node.init(85, "Barney", 25);
+    betty.* = Node.init(300, "Betty", 27);
+    pebbles.* = Node.init(50, "Pebbles", 2);
+
+    try ml.insert(fred);
+    try ml.insert(wilma);
+    try ml.insert(dino);
+    try ml.insert(barney);
+    try ml.insert(betty);
+    try ml.insert(pebbles);
+
     defer ml.deinit();
-    printById(ml);
-    printByAge(ml);
     printByName(ml);
-    try ml.remove(node2.id);
-    printById(ml);
-    printByAge(ml);
-    printByName(ml);
-    printByIdReverse(ml);
-    printByAgeReverse(ml);
     printByNameReverse(ml);
+    printById(ml);
+    printByIdReverse(ml);
+    printByAge(ml);
+    printByAgeReverse(ml);
 }
