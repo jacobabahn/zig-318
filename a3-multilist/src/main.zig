@@ -150,7 +150,7 @@ pub fn printByIdReverse(list: Multilist) void {
     std.debug.print("Printing by Id (Reversed):\n", .{});
     var current = list.last;
     while (current) |node| {
-        if (node == list.last or node == list.last) {
+        if (node == list.first or node == list.last) {
             current = node.prev_id;
             continue;
         }
@@ -181,6 +181,7 @@ pub fn printByAgeReverse(list: Multilist) void {
             continue;
         }
         std.debug.print("Node Age: {any}\n", .{node.age});
+        current = node.prev_age;
     }
 }
 
@@ -236,7 +237,7 @@ pub fn main() !void {
     printById(ml);
     printByAge(ml);
     printByName(ml);
-    // printByIdReverse(ml);
-    // printByAgeReverse(ml);
-    // printByNameReverse(ml);
+    printByIdReverse(ml);
+    printByAgeReverse(ml);
+    printByNameReverse(ml);
 }
