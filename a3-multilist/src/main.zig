@@ -68,7 +68,7 @@ pub const Multilist = struct {
     pub fn insert(self: *Multilist, node: *Node) !void {
         try idInsert(self, node);
         try ageInsert(self, node);
-        // nameInsert(self, node);
+        try nameInsert(self, node);
     }
 
     fn idInsert(list: *Multilist, node: *Node) !void {
@@ -79,7 +79,6 @@ pub const Multilist = struct {
                 node.prev_id = curr_node.prev_id;
                 curr_node.prev_id.?.next_id = node;
                 curr_node.prev_id = node;
-                // std.debug.print("Inserted node: {any}\n", .{node.id});
                 break;
             }
             current = curr_node.next_id;
@@ -88,19 +87,77 @@ pub const Multilist = struct {
     fn ageInsert(list: *Multilist, node: *Node) !void {
         var current = list.first;
         while (current) |curr_node| {
-            if ((curr_node.age > node.age) or (curr_node == list.last)) {
+            if (curr_node.age > node.age or curr_node == list.last) {
                 node.next_age = curr_node;
                 node.prev_age = curr_node.prev_age;
                 curr_node.prev_age.?.next_age = node;
                 curr_node.prev_age = node;
-                std.debug.print("Inserted node: {any}\n", .{node.id});
                 break;
             }
             current = curr_node.next_age;
         }
     }
-    // fn nameInsert(list: *Multilist, node: *Node) !void {}
+    fn nameInsert(list: *Multilist, node: *Node) !void {
+        var current = list.first;
+        while (current) |curr_node| {
+            if (std.mem.lessThan(u8, node.name, curr_node.name) or curr_node == list.last) {
+                node.next_name = curr_node;
+                node.prev_name = curr_node.prev_name;
+                curr_node.prev_name.?.next_name = node;
+                curr_node.prev_name = node;
+                break;
+            }
+            current = curr_node.next_name;
+        }
+    }
+
+    pub fn remove(self: *Multilist, id: i32) !void {
+        var current = self.first;
+        while (current) |curr_node| {
+            if (curr_node.id != id) {
+                current = curr_node.next_id;
+            } else if (curr_node.id == id) {
+                // const temp = curr_node.prev_id;
+                curr_node.next_id.?.prev_id = curr_node.prev_id;
+                curr_node.prev_id.?.next_id = curr_node.next_id;
+
+                curr_node.next_age.?.prev_age = curr_node.prev_age;
+                curr_node.prev_age.?.next_age = curr_node.next_age;
+
+                curr_node.next_name.?.prev_name = curr_node.prev_name;
+                curr_node.prev_name.?.next_name = curr_node.next_name;
+                self.allocator.destroy(curr_node);
+                break;
+            }
+        }
+    }
 };
+
+pub fn printById(list: Multilist) void {
+    std.debug.print("Printing by Id:\n", .{});
+    var current = list.first;
+    while (current) |node| {
+        if (node == list.first or node == list.last) {
+            current = node.next_id;
+            continue;
+        }
+        std.debug.print("Node ID: {d}\n", .{node.id});
+        current = node.next_id;
+    }
+}
+
+pub fn printByIdReverse(list: Multilist) void {
+    std.debug.print("Printing by Id (Reversed):\n", .{});
+    var current = list.last;
+    while (current) |node| {
+        if (node == list.last or node == list.last) {
+            current = node.prev_id;
+            continue;
+        }
+        std.debug.print("Node ID: {d}\n", .{node.id});
+        current = node.prev_id;
+    }
+}
 
 pub fn printByAge(list: Multilist) void {
     std.debug.print("Printing by age\n", .{});
@@ -126,23 +183,22 @@ pub fn main() !void {
     const node3 = try allocator.create(Node);
     const node4 = try allocator.create(Node);
     node1.* = Node.init(1, "Node1", 10);
-    node2.* = Node.init(2, "Node2", 20);
-    node3.* = Node.init(4, "Node3", 30);
+    node2.* = Node.init(2, "Node7", 20);
+    node3.* = Node.init(4, "Node5", 30);
     node4.* = Node.init(3, "Node4", 15);
     try ml.insert(node1);
     try ml.insert(node2);
     try ml.insert(node3);
     try ml.insert(node4);
     defer ml.deinit();
-    // printByAge(ml);
-    var current = ml.first;
-    while (current) |node| {
-        if (node == ml.first or node == ml.last) {
-            current = node.next_id;
-            continue;
-        }
-        std.debug.print("Node ID: {d}, Name: {s}, Age: {d}\n", .{ node.id, node.name, node.age });
-        current = node.next_id;
-    }
-    // std.debug.print("Multilist: {any}\n", .{ml.first.?.next_id});
+    printById(ml);
+    printByAge(ml);
+    printByName(ml);
+    try ml.remove(node2.id);
+    printById(ml);
+    printByAge(ml);
+    printByName(ml);
+    // printByIdReverse(ml);
+    // printByAgeReverse(ml);
+    // printByNameReverse(ml);
 }
